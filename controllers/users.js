@@ -3,6 +3,7 @@ const User = require('../models/User');
 const ERROR_VALIDATION = 400;
 const ERROR_COMMON = 500;
 const ERROR_NOT_FOUND = 404;
+const LENGTH_OF_ID = 24;
 
 function getAllUsers(req, res) {
   User.find({})
@@ -30,10 +31,19 @@ function createUser(req, res) {
 }
 
 function getUserById(req, res) {
+  if (req.params.userId.length < LENGTH_OF_ID) {
+    res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные' });
+    return;
+  }
   User.findById(req.params.userId)
-    .then((user) => res.send({ data: user }))
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('CastError'));
+      }
+      return res.send({ data: user });
+    })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'CastError' || err.message === 'CastError') {
         res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
       } else {
         res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
