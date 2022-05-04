@@ -1,19 +1,17 @@
 const User = require('../models/User');
 
-const ERROR_VALIDATION = 400;
-const ERROR_COMMON = 500;
-const ERROR_NOT_FOUND = 404;
-const LENGTH_OF_ID = 24;
+const {
+  ERROR_VALIDATION,
+  ERROR_COMMON,
+  LENGTH_OF_ID,
+  ERROR_NOT_FOUND,
+} = require('../constants/constants');
 
 function getAllUsers(req, res) {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные' });
-      } else {
-        res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
-      }
+    .catch(() => {
+      res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
     });
 }
 
@@ -38,15 +36,14 @@ function getUserById(req, res) {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        const err = new Error('Пользователь по указанному id не найден');
-        err.name = 'CastError';
-        return Promise.reject(err);
+        res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
+        return;
       }
-      return res.send({ data: user });
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
+        res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
       }
@@ -56,17 +53,14 @@ function getUserById(req, res) {
 function updateProfile(req, res) {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
-    req.params.id,
+    req.user._id,
     { name, about },
     { new: true, runValidators: true, upsert: true },
   )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
-        return;
-      } if (err.name === 'ValidationError') {
-        res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
       }
@@ -76,17 +70,14 @@ function updateProfile(req, res) {
 function updateAvatar(req, res) {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
-    req.params.id,
+    req.user._id,
     { avatar },
     { new: true, runValidators: true, upsert: true },
   )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
-        return;
-      } if (err.name === 'ValidationError') {
-        res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+        res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
       }

@@ -1,0 +1,11 @@
+const ERROR_VALIDATION = 400;
+const ERROR_COMMON = 500;
+const ERROR_NOT_FOUND = 404;
+const LENGTH_OF_ID = 24;
+
+module.exports = {
+  ERROR_VALIDATION,
+  ERROR_COMMON,
+  ERROR_NOT_FOUND,
+  LENGTH_OF_ID,
+};
