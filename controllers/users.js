@@ -38,12 +38,14 @@ function getUserById(req, res) {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('CastError'));
+        const err = new Error('Пользователь по указанному id не найден');
+        err.name = 'CastError';
+        return Promise.reject(err);
       }
       return res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'CastError' || err.message === 'CastError') {
+      if (err.name === 'CastError') {
         res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
       } else {
         res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
@@ -62,6 +64,7 @@ function updateProfile(req, res) {
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
+        return;
       } if (err.name === 'ValidationError') {
         res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные при обновлении профиля' });
       } else {
@@ -81,6 +84,7 @@ function updateAvatar(req, res) {
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
+        return;
       } if (err.name === 'ValidationError') {
         res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные при обновлении профиля' });
       } else {

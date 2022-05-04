@@ -4,6 +4,8 @@ const ERROR_VALIDATION = 400;
 const ERROR_COMMON = 500;
 const ERROR_NOT_FOUND = 404;
 const LENGTH_OF_ID = 24;
+const CastError = new Error('Передан несуществующий id карточки');
+CastError.name = 'CastError';
 
 function getAllCards(req, res) {
   Card.find({})
@@ -58,12 +60,12 @@ function addLike(req, res) {
   )
     .then((likes) => {
       if (!likes) {
-        return Promise.reject(new Error('CastError'));
+        return Promise.reject(CastError);
       }
       return res.send({ data: likes });
     })
     .catch((err) => {
-      if (err.name === 'CastError' || err.message === 'CastError') {
+      if (err.name === 'CastError') {
         res.status(ERROR_NOT_FOUND).send({ message: 'Передан несуществующий id карточки' });
         return;
       } if (err.name === 'ValidationError') {
@@ -86,12 +88,12 @@ function deleteLike(req, res) {
   )
     .then((likes) => {
       if (!likes) {
-        return Promise.reject(new Error('CastError'));
+        return Promise.reject(CastError);
       }
       return res.send({ data: likes });
     })
     .catch((err) => {
-      if (err.name === 'CastError' || err.message === 'CastError') {
+      if (err.name === 'CastError') {
         res.status(ERROR_NOT_FOUND).send({ message: 'Передан несуществующий id карточки' });
         return;
       } if (err.name === 'ValidationError') {
