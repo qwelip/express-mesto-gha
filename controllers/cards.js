@@ -5,6 +5,7 @@ const {
   ERROR_COMMON,
   LENGTH_OF_ID,
   ERROR_NOT_FOUND,
+  ERROR_ACCESS_DENIED,
 } = require('../constants/constants');
 
 function getAllCards(req, res) {
@@ -34,12 +35,19 @@ function deleteCardById(req, res) {
     res.status(ERROR_VALIDATION).send({ message: 'Передан некорректный id' });
     return;
   }
+
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
         res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
         return;
       }
+
+      if (req.user._id !== card.owner) {
+        res.status(ERROR_ACCESS_DENIED).send({ message: 'Нет прав для удаления чужой карточки' });
+        return;
+      }
+
       res.send({ data: card });
     })
     .catch((err) => {
