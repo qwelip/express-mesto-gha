@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 
+// eslint-disable-next-line
+const urlRegExp = new RegExp('https?:\/\/.+');
+
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -10,6 +13,12 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator(str) {
+        return urlRegExp.test(str);
+      },
+      message: 'Введите корректную ссылку',
+    },
   },
   owner: {
     type: mongoose.ObjectId,

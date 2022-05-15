@@ -1,9 +1,13 @@
 const mongoose = require('mongoose');
 const stringValidator = require('validator');
 
+// eslint-disable-next-line
+const urlRegExp = new RegExp('https?:\/\/.+');
+
 const userSchema = new mongoose.Schema({
   name: {
-    role: { type: String, default: 'Жак-Ив Кусто' },
+    type: String,
+    default: 'Жак-Ив Кусто',
     minlength: 2,
     maxlength: 30,
   },
@@ -24,17 +28,19 @@ const userSchema = new mongoose.Schema({
     select: false,
   },
   about: {
-    role: { type: String, default: 'Исследователь' },
+    type: String,
+    default: 'Исследователь',
     minlength: 2,
     maxlength: 30,
   },
   avatar: {
-    role: { type: String, default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png' },
+    type: String,
+    default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
-      validator(v) {
-        return v.includes('https://') || v.includes('http://');
+      validator(str) {
+        return urlRegExp.test(str);
       },
-      message: 'Введите корректную ссылку на изображение',
+      message: 'Введите корректную ссылку',
     },
   },
 });

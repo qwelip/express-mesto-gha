@@ -1,25 +1,25 @@
 const jwt = require('jsonwebtoken');
-const { ERROR_NOT_VALID_AUTH, ERROR_ACCESS_DENIED } = require('../constants/constants');
+const { NotValidAuthError } = require('../errors/NotValidAuthError');
+const { SECRET } = require('../constants/constants');
 
 function auth(req, res, next) {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    return res.status(ERROR_ACCESS_DENIED).send({ message: 'Недостаточно прав' });
+    next(new NotValidAuthError('Необходима авторизация'));
+    return;
   }
 
   const token = authorization.replace('Bearer ', '');
   let payload;
 
   try {
-    payload = jwt.verify(token, 'SECRET'); // todo ссылка на серкет должна быть
+    payload = jwt.verify(token, SECRET);
   } catch (error) {
-    res.status(ERROR_NOT_VALID_AUTH).send({ message: 'Необходима авторизация' });
+    next(new NotValidAuthError('Необходима авторизация'));
   }
-
   req.user = payload;
-
-  return next();
+  next();
 }
 
 module.exports = {

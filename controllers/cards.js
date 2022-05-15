@@ -1,67 +1,80 @@
 const Card = require('../models/Card');
 
+const { LENGTH_OF_ID } = require('../constants/constants');
+const { CommonError } = require('../errors/CommonError');
+const { NotFoundError } = require('../errors/NotFoundError');
+const { ValidationError } = require('../errors/ValidationError');
+const { AccessDeniedError } = require('../errors/AccessDeniedError');
+
 const {
-  ERROR_VALIDATION,
-  ERROR_COMMON,
-  LENGTH_OF_ID,
-  ERROR_NOT_FOUND,
-  ERROR_ACCESS_DENIED,
+  STATUS_CREATED,
+  STATUS_OK,
 } = require('../constants/constants');
 
-function getAllCards(req, res) {
+function getAllCards(req, res, next) {
   Card.find({})
-    .then((cards) => res.send({ data: cards }))
+    .then((cards) => {
+      if (!cards) {
+        next(new NotFoundError('Карточки не найдены'));
+        return;
+      }
+      res.send({ data: cards });
+    })
     .catch(() => {
-      res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
+      next(new CommonError('Ошибка сервера'));
     });
 }
 
-function createCard(req, res) {
+function createCard(req, res, next) {
   const owner = req.user._id;
   const { name, link } = req.body;
   Card.create({ owner, name, link })
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.status(STATUS_CREATED).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные при создании карточки' });
+        next(new ValidationError('Переданы некорректные данные при создании карточки'));
       } else {
-        res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
+        next(new CommonError('Ошибка сервера'));
       }
     });
 }
 
-function deleteCardById(req, res) {
+async function deleteCardById(req, res, next) {
   if (req.params.cardId.length < LENGTH_OF_ID) {
-    res.status(ERROR_VALIDATION).send({ message: 'Передан некорректный id' });
+    next(new ValidationError('Передан некорректный id'));
     return;
   }
 
-  Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => {
-      if (!card) {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
-        return;
-      }
+  try {
+    const card = await Card.findById(req.params.cardId);
 
-      if (req.user._id !== card.owner) {
-        res.status(ERROR_ACCESS_DENIED).send({ message: 'Нет прав для удаления чужой карточки' });
-        return;
-      }
+    if (!card) {
+      throw new NotFoundError('Карточка не найдена');
+    }
 
-      res.send({ data: card });
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(ERROR_VALIDATION).send({ message: 'Передан некорректный id' });
-      } else {
-        res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
-      }
-    });
+    if (req.user._id !== card.owner.toString()) {
+      throw new AccessDeniedError('Нет прав для удаления чужой карточки');
+    }
+
+    Card.findByIdAndRemove(req.params.cardId)
+      .then(() => {
+        res.status(STATUS_OK).send({ data: card });
+      })
+      .catch((err) => {
+        if (err.name === 'CastError') {
+          next(new ValidationError('Передан некорректный id'));
+        } else {
+          next(new CommonError('Ошибка сервера'));
+        }
+      });
+  } catch (err) {
+    next(err);
+  }
 }
 
-function addLike(req, res) {
+function addLike(req, res, next) {
   if (req.params.cardId.length < LENGTH_OF_ID) {
-    res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные' });
+    next(new ValidationError('Переданы некорректные данные'));
     return;
   }
   Card.findByIdAndUpdate(
@@ -71,23 +84,23 @@ function addLike(req, res) {
   )
     .then((likes) => {
       if (!likes) {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Передан несуществующий id карточки' });
+        next(new NotFoundError('Передан несуществующий id карточки'));
         return;
       }
-      res.send({ data: likes });
+      res.status(STATUS_CREATED).send({ data: likes });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные для постановки/снятии лайка' });
+        next(new ValidationError('Переданы некорректные данные для постановки/снятии лайка'));
       } else {
-        res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
+        next(new CommonError('Ошибка сервера'));
       }
     });
 }
 
-function deleteLike(req, res) {
+function deleteLike(req, res, next) {
   if (req.params.cardId.length < LENGTH_OF_ID) {
-    res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные' });
+    next(new ValidationError('Переданы некорректные данные'));
     return;
   }
   Card.findByIdAndUpdate(
@@ -97,16 +110,16 @@ function deleteLike(req, res) {
   )
     .then((likes) => {
       if (!likes) {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Передан несуществующий id карточки' });
+        next(new NotFoundError('Передан несуществующий id карточки'));
         return;
       }
       res.send({ data: likes });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные для постановки/снятии лайка' });
+        next(new ValidationError('Переданы некорректные данные для постановки/снятии лайка'));
       } else {
-        res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
+        next(new CommonError('Ошибка сервера'));
       }
     });
 }

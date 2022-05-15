@@ -1,3 +1,4 @@
+const { celebrate, Joi, errors } = require('celebrate');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -9,12 +10,30 @@ const { auth } = require('./middlewares/auth');
 const { PORT = 3000 } = process.env;
 const app = express();
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+// eslint-disable-next-line
+const urlRegExp = new RegExp('https?:\/\/.+');
+
+app.use(bodyParser.json());
+
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+}), login);
+
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(urlRegExp),
+  }),
+}), createUser);
 
 app.use(auth);
 
-app.use(bodyParser.json());
 app.use('/users', userRouter);
 app.use('/cards', cardsRouter);
 
@@ -22,9 +41,15 @@ app.use('/', (req, res) => {
   res.status(404).send({ message: 'Страница не найдена' });
 });
 
-// app.use((err, req,res, next) => {
+app.use(errors());
 
-// });
+// eslint-disable-next-line
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res.status(err.statusCode).send({
+    message: statusCode === 500 ? 'Ошибка сервера' : message,
+  });
+});
 
 async function main() {
   await mongoose.connect('mongodb://localhost:27017/mestodb', {

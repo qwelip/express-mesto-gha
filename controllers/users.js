@@ -2,24 +2,36 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+const { CommonError } = require('../errors/CommonError');
+const { NotFoundError } = require('../errors/NotFoundError');
+const { NotValidAuthError } = require('../errors/NotValidAuthError');
+const { UnicConflictError } = require('../errors/UnicConflictError');
+const { ValidationError } = require('../errors/ValidationError');
+
 const {
-  ERROR_VALIDATION,
-  ERROR_COMMON,
   LENGTH_OF_ID,
-  ERROR_NOT_FOUND,
-  ERROR_NOT_VALID_AUTH,
-  ERROR_UNIQ_STRING_CONFLICT,
+  PASSWORD_HASH,
+  SECRET,
+  SEVEN_DAYS,
+  STATUS_CREATED,
+  STATUS_OK,
 } = require('../constants/constants');
 
-function getAllUsers(req, res) {
+function getAllUsers(req, res, next) {
   User.find({})
-    .then((users) => res.send({ data: users }))
+    .then((users) => {
+      if (!users) {
+        next(new NotFoundError('Пользователи не найдены'));
+        return;
+      }
+      res.status(STATUS_OK).send({ data: users });
+    })
     .catch(() => {
-      res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
+      next(new CommonError('Ошибка сервера'));
     });
 }
 
-function createUser(req, res) {
+function createUser(req, res, next) {
   const {
     name,
     about,
@@ -28,125 +40,137 @@ function createUser(req, res) {
     password,
   } = req.body;
 
-  bcrypt.hash(password, 10)
+  bcrypt.hash(password, PASSWORD_HASH)
     .then((hash) => {
       User.create({
         name,
         about,
         avatar,
         email,
-        hash,
+        password: hash,
       })
-        .then((user) => res.send({ data: user }))
+        .then((user) => {
+          const newUser = user.toObject();
+          // eslint-disable-next-line
+          delete newUser.password;
+          res.status(STATUS_CREATED).send({ data: newUser });
+        })
         .catch((err) => {
           if (err.code === 11000) {
-            res.status(ERROR_UNIQ_STRING_CONFLICT).send({ message: 'Пользователь с такой почтой уже существует' });
+            next(new UnicConflictError('Пользователь с такой почтой уже существует'));
             return;
           }
           if (err.name === 'ValidationError') {
-            res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные при создании пользователя' });
+            next(new ValidationError('Переданы некорректные данные'));
           } else {
-            res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
+            next(new CommonError('Ошибка сервера'));
           }
         });
     });
 }
 
-function getUserById(req, res) {
+function getUserById(req, res, next) {
   if (req.params.userId.length < LENGTH_OF_ID) {
-    res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные' });
+    next(new ValidationError('Переданы некорректные данные'));
     return;
   }
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
+        next(new NotFoundError('Пользователь по указанному id не найден'));
         return;
       }
       res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные' });
+        next(new ValidationError('Переданы некорректные данные'));
       } else {
-        res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
+        next(new CommonError('Ошибка сервера'));
       }
     });
 }
 
-function updateProfile(req, res) {
+function updateProfile(req, res, next) {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
     { name, about },
     { new: true, runValidators: true, upsert: true },
   )
-    .then((user) => res.send({ data: user }))
+    .then((user) => {
+      res.status(STATUS_OK).send({ data: user });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные' });
+        next(new ValidationError('Переданы некорректные данные'));
       } else {
-        res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
+        next(new CommonError('Ошибка сервера'));
       }
     });
 }
 
-function updateAvatar(req, res) {
+function updateAvatar(req, res, next) {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
     { avatar },
     { new: true, runValidators: true, upsert: true },
   )
-    .then((user) => res.send({ data: user }))
+    .then((user) => {
+      res.send({ data: user });
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные' });
+        next(new ValidationError('Переданы некорректные данные'));
       } else {
-        res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
+        next(new CommonError('Ошибка сервера'));
       }
     });
 }
 
-function login(req, res) {
+async function login(req, res, next) {
   const { email, password } = req.body;
-  let user;
 
-  User.findOne({ email }).select('+password')
-    .then((findUser) => {
-      if (!findUser) {
-        res.status(ERROR_NOT_VALID_AUTH).send({ message: 'Вы ввели некорректную почту или пароль' });
-        return;
-      }
-      user = findUser;
-      bcrypt.compare(password, user.password); // todo убрал здесь return может зря
-    })
-    .then((matched) => {
-      if (!matched) {
-        res.status(ERROR_NOT_VALID_AUTH).send({ message: 'Вы ввели некорректную почту или пароль' });
-        return;
-      }
-      const token = jwt.sign({ _id: user._id }, 'SECRET', { expiresIn: '7d' }); // todo засекретить пароль, вынести в переменную
+  try {
+    const user = await User.findOne({ email }).select('+password');
 
-      res.cookie('jwt', token, { maxAge: 604800000, httpOnly: true })
-        .end();
-    });
+    if (!user) {
+      throw new NotValidAuthError('Вы ввели некорректную почту или пароль');
+    }
+    const isMatched = await bcrypt.compare(password, user.password);
+    if (!isMatched) {
+      throw new NotValidAuthError('Вы ввели некорректную почту или пароль');
+    }
+
+    const token = jwt.sign({ _id: user._id }, SECRET, { expiresIn: '7d' });
+    res.send({ data: user });
+    res.cookie('jwt', token, { maxAge: SEVEN_DAYS, httpOnly: true })
+      .end();
+  } catch (err) {
+    next(err);
+  }
 }
 
-function getCurrentUser(req, res) {
+function getCurrentUser(req, res, next) {
+  if (req.params.userId) {
+    next();
+    return;
+  }
+
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
+        next(new NotFoundError('Пользователь по указанному id не найден'));
         return;
       }
       res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_VALIDATION).send({ message: 'Переданы некорректные данные' });
+        next(new ValidationError('Переданы некорректные данные'));
       } else {
-        res.status(ERROR_COMMON).send({ message: 'Ошибка сервера' });
+        next(new CommonError('Ошибка сервера'));
       }
     });
 }
