@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const stringValidator = require('validator');
 
 // eslint-disable-next-line
-const urlRegExp = new RegExp('https?:\/\/.+');
+const urlRegExp = new RegExp('^(https?:)\/\/(www.)?[a-z0-9./_~:/?#@!$&()*+,;=\\]\\[-]+#?$');
 
 const userSchema = new mongoose.Schema({
   name: {

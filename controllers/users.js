@@ -20,10 +20,6 @@ const {
 function getAllUsers(req, res, next) {
   User.find({})
     .then((users) => {
-      if (!users) {
-        next(new NotFoundError('Пользователи не найдены'));
-        return;
-      }
       res.status(STATUS_OK).send({ data: users });
     })
     .catch(() => {
@@ -96,7 +92,7 @@ function updateProfile(req, res, next) {
   User.findByIdAndUpdate(
     req.user._id,
     { name, about },
-    { new: true, runValidators: true, upsert: true },
+    { new: true, runValidators: true, upsert: false },
   )
     .then((user) => {
       res.status(STATUS_OK).send({ data: user });
@@ -115,7 +111,7 @@ function updateAvatar(req, res, next) {
   User.findByIdAndUpdate(
     req.user._id,
     { avatar },
-    { new: true, runValidators: true, upsert: true },
+    { new: true, runValidators: true, upsert: false },
   )
     .then((user) => {
       res.send({ data: user });

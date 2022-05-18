@@ -14,10 +14,6 @@ const {
 function getAllCards(req, res, next) {
   Card.find({})
     .then((cards) => {
-      if (!cards) {
-        next(new NotFoundError('Карточки не найдены'));
-        return;
-      }
       res.send({ data: cards });
     })
     .catch(() => {
@@ -40,11 +36,6 @@ function createCard(req, res, next) {
 }
 
 async function deleteCardById(req, res, next) {
-  if (req.params.cardId.length < LENGTH_OF_ID) {
-    next(new ValidationError('Передан некорректный id'));
-    return;
-  }
-
   try {
     const card = await Card.findById(req.params.cardId);
 

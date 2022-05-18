@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // eslint-disable-next-line
-const urlRegExp = new RegExp('https?:\/\/.+');
+const urlRegExp = new RegExp('^(https?:)\/\/(www.)?[a-z0-9./_~:/?#@!$&()*+,;=\\]\\[-]+#?$');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -21,11 +21,13 @@ const cardSchema = new mongoose.Schema({
     },
   },
   owner: {
-    type: mongoose.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: 'user',
   },
   likes: {
-    type: [mongoose.ObjectId],
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'user',
     default: [],
   },
   createdAt: {

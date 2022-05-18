@@ -2,10 +2,7 @@ const { celebrate, Joi } = require('celebrate');
 const cardsRouter = require('express').Router();
 
 // eslint-disable-next-line
-const urlRegExp = new RegExp('https?:\/\/.+');
-
-// eslint-disable-next-line
-const cardIdRegExp = new RegExp('[a-z0-9]{24}');
+const urlRegExp = new RegExp('^(https?:)\/\/(www.)?[a-z0-9./_~:/?#@!$&()*+,;=\\]\\[-]+#?$');
 
 const {
   getAllCards,
@@ -26,19 +23,34 @@ cardsRouter.post('/', celebrate({
 
 cardsRouter.delete('/:cardId', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().pattern(cardIdRegExp),
+    cardId: Joi
+      .string()
+      .required()
+      .alphanum()
+      .length(24)
+      .hex(),
   }),
 }), deleteCardById);
 
 cardsRouter.put('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().pattern(cardIdRegExp),
+    cardId: Joi
+      .string()
+      .required()
+      .alphanum()
+      .length(24)
+      .hex(),
   }),
 }), addLike);
 
 cardsRouter.delete('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().pattern(cardIdRegExp),
+    cardId: Joi
+      .string()
+      .required()
+      .alphanum()
+      .length(24)
+      .hex(),
   }),
 }), deleteLike);
 

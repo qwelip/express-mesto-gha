@@ -6,12 +6,13 @@ const userRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const { auth } = require('./middlewares/auth');
+const { NotFoundError } = require('./errors/NotFoundError');
 
 const { PORT = 3000 } = process.env;
 const app = express();
 
 // eslint-disable-next-line
-const urlRegExp = new RegExp('https?:\/\/.+');
+const urlRegExp = new RegExp('^(https?:)\/\/(www.)?[a-z0-9./_~:/?#@!$&()*+,;=\\]\\[-]+#?$');
 
 app.use(bodyParser.json());
 
@@ -37,8 +38,8 @@ app.use(auth);
 app.use('/users', userRouter);
 app.use('/cards', cardsRouter);
 
-app.use('/', (req, res) => {
-  res.status(404).send({ message: 'Страница не найдена' });
+app.use('/', (req, res, next) => {
+  next(new NotFoundError('Страница не найдена'));
 });
 
 app.use(errors());
