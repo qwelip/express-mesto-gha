@@ -1,8 +1,9 @@
 const { celebrate, Joi } = require('celebrate');
 const cardsRouter = require('express').Router();
+const { URL_REG_STR } = require('../constants/constants');
 
 // eslint-disable-next-line
-const urlRegExp = new RegExp('^(https?:)\/\/(www.)?[a-z0-9./_~:/?#@!$&()*+,;=\\]\\[-]+#?$');
+const urlRegExp = new RegExp(URL_REG_STR);
 
 const {
   getAllCards,

@@ -7,12 +7,13 @@ const cardsRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const { auth } = require('./middlewares/auth');
 const { NotFoundError } = require('./errors/NotFoundError');
+const { URL_REG_STR } = require('./constants/constants');
 
 const { PORT = 3000 } = process.env;
 const app = express();
 
 // eslint-disable-next-line
-const urlRegExp = new RegExp('^(https?:)\/\/(www.)?[a-z0-9./_~:/?#@!$&()*+,;=\\]\\[-]+#?$');
+const urlRegExp = new RegExp(URL_REG_STR);
 
 app.use(bodyParser.json());
 
