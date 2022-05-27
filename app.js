@@ -8,6 +8,7 @@ const { login, createUser } = require('./controllers/users');
 const { auth } = require('./middlewares/auth');
 const { NotFoundError } = require('./errors/NotFoundError');
 const { URL_REG_STR } = require('./constants/constants');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -16,6 +17,8 @@ const app = express();
 const urlRegExp = new RegExp(URL_REG_STR);
 
 app.use(bodyParser.json());
+
+app.use(requestLogger);
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -42,6 +45,8 @@ app.use('/cards', cardsRouter);
 app.use('/', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
 });
+
+app.use(errorLogger);
 
 app.use(errors());
 
