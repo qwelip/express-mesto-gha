@@ -140,9 +140,8 @@ async function login(req, res, next) {
     }
 
     const token = jwt.sign({ _id: user._id }, SECRET, { expiresIn: '7d' });
+    res.cookie('jwt', token, { maxAge: SEVEN_DAYS, httpOnly: true });
     res.send({ data: user });
-    res.cookie('jwt', token, { maxAge: SEVEN_DAYS, httpOnly: true })
-      .end();
   } catch (err) {
     next(err);
   }
