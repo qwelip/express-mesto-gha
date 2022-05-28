@@ -1,0 +1,23 @@
+.profile__editProfile {
+  background-color: #000;
+  border: solid 1px white;
+  width: 24px;
+  height: 24px;
+  margin-left: 18px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.profile__editProfile:hover {
+  opacity: 0.6;
+}
+
+@media (max-width: 320px) {
+  .profile__editProfile {
+    width: 18px;
+    height: 18px;
+  }
+}

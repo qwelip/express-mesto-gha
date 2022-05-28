@@ -1,0 +1,11 @@
+.profile__icon {
+  width: 10px;
+  height: 10px;
+}
+
+@media (max-width: 320px) {
+  .profile__icon {
+    width: 8px;
+    height: 8px;
+  }
+}

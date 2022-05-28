@@ -1,0 +1,12 @@
+.popup__window_type_picture {
+  max-height: 75vh;
+  max-width: 75vw;
+  min-width: 0;
+  background-color: rgba(255, 255, 255, 0);
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+  justify-content: unset;
+  box-sizing: unset;
+  margin: 0 40px;
+}

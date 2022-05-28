@@ -1,0 +1,4 @@
+.element__trashBtn_hidden {
+  visibility: hidden;
+  opacity: 0;
+}

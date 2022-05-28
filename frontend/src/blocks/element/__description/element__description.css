@@ -1,0 +1,8 @@
+.element__description {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  color: #000;
+  padding: 22px 20px 22px 21px;
+}

@@ -1,0 +1,13 @@
+.login-signup__input {
+  width: 100%;
+  border: solid 0px;
+  border-bottom: solid 2px #CCCCCC;
+  padding: 0 0 13px;
+  outline: none;
+  margin-top: 30px;
+  font-size: 14px;
+  line-height: 17px;
+  color: #CCCCCC;
+  font-weight: 400;
+  background-color: #000;
+}

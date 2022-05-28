@@ -1,0 +1,16 @@
+.element__likeBtn {
+  background-color: inherit;
+  border: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  background-image: url(../../../images/heart.svg);
+  width: 22px;
+  height: 19px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.element__likeBtn:hover {
+  opacity: 0.5;
+}

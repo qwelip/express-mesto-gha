@@ -1,0 +1,15 @@
+.login-signup__sign-in {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  padding-top: 15px;
+  font-size: 14px;
+  line-height: 17px;
+  font-weight: 400;
+}
+
+@media (max-width: 400px) {
+  .login-signup__sign-in {
+    padding-top: 20px;
+  }
+}

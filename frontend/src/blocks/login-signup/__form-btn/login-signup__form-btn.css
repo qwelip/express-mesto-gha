@@ -1,0 +1,25 @@
+.login-signup__form-btn {
+  border-radius: 2px;
+  width: 100%;
+  padding: 14px 0;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 22px;
+  text-align: center;
+  color: #000000;
+  background-color: #FFFFFF;
+  cursor: pointer;
+  margin-top: 216px;
+}
+
+@media (max-width: 400px) {
+  .login-signup__form-btn {
+    margin-top: 173px;
+    font-size: 16px;
+    line-height: 19px;
+  }
+}
+
+.login-signup__form-btn:hover {
+  opacity: 0.85;
+}

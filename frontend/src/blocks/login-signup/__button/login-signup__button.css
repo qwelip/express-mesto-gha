@@ -1,0 +1,12 @@
+.login-signup__button {
+  background-color: unset;
+  border: none;
+  color: #FFFFFF;
+  cursor: pointer;
+  text-decoration: none;
+  margin-left: 8px;
+}
+
+.login-signup__button:hover {
+  opacity: 0.6;
+}

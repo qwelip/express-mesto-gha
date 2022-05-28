@@ -1,0 +1,5 @@
+.popup__pictureContainer {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}

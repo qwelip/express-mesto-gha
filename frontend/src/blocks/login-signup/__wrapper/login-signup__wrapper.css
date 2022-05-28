@@ -1,0 +1,10 @@
+.login-signup__wrapper {
+  margin: 0 auto;
+  max-width: 358px;
+}
+
+@media (max-width: 400px) {
+  .login-signup__wrapper {
+    max-width: 260px;
+  }
+}

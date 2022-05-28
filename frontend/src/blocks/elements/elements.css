@@ -1,0 +1,13 @@
+.elements {
+  max-width: 896px;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 auto;
+  padding: 0 19px;
+}
+
+@media (max-width: 950px) {
+  .elements {
+    justify-content: space-evenly;
+  }
+}

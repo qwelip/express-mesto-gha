@@ -1,0 +1,8 @@
+.profile__photo-edit {
+  position: relative;
+  border-radius: 50%;
+  height: 120px;
+  width: 120px;
+  margin-right: 40px;
+  overflow: hidden;
+}

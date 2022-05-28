@@ -1,0 +1,17 @@
+.element__trashBtn {
+  background-color: inherit;
+  border: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  width: 20px;
+  height: 19px;
+  right: 20px;
+  top: 20px;
+  cursor: pointer;
+}
+
+.element__trashBtn:hover {
+  opacity: 0.6;
+}

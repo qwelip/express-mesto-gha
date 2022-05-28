@@ -1,0 +1,15 @@
+.profile__info {
+  flex: 1 1 auto;
+}
+
+@media (max-width: 730px) {
+  .profile__info {
+    flex: 0 1 auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .profile__info {
+    text-align: center;
+  }
+}
