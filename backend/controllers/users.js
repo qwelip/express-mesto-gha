@@ -12,7 +12,6 @@ const {
   LENGTH_OF_ID,
   PASSWORD_HASH,
   SECRET,
-  SEVEN_DAYS,
   STATUS_CREATED,
   STATUS_OK,
 } = require('../constants/constants');

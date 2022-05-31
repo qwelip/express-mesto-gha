@@ -28,6 +28,7 @@ function App() {
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
   const [email, setEmail] = useState('');
+  const [jwt, setJwt] = useState('');
   const history = useHistory();
 
   const closeAllPopups = () => {
@@ -54,46 +55,70 @@ function App() {
     setSelectedCard({isOpened: true, ...data})
   }
 
+  function handleError(err) {
+    console.log(err);
+    closeAllPopups();
+    setInfoTooltipState({
+      isOpen: true,
+      isError: true
+    });
+  }
+
   function handleUpdateUser({name, about}) {
-    api.setUserInfo({name, about})
+    api.setUserInfo({name, about, jwt})
       .then(res => res.json())
-      .then(data => {
-        setCurrentUser(data);
+      .then(res => {
+        if (res.error) {
+          return Promise.reject(res);
+        }
+        setCurrentUser(res.data);
         closeAllPopups();
       })
-      .catch( err => console.log(err))
+      .catch( err => {
+        handleError(err);
+      })
   }
 
   function handleUpdateAvatar({avatar}) {
-    api.changeAvatar(avatar)
+    api.changeAvatar(avatar, jwt)
       .then(res => res.json())
-      .then(data => {
-        setCurrentUser(data);
+      .then(res => {
+        if (res.error) {
+          return Promise.reject(res);
+        }
+        setCurrentUser(res.data);
         closeAllPopups();
       })
-      .catch( err => console.log(err))
+      .catch( err => {
+        handleError(err);
+      })
   }
 
   function handleAddPlaceSubmit({name, link}) {
-    api.addNewCard({name, link})
+    api.addNewCard({name, link, jwt})
       .then(res => res.json())
-      .then(newCard => {
-        setCards([newCard, ...cards]);
+      .then(res => {
+        if (res.error) {
+          return Promise.reject(res);
+        }
+        setCards([res.data, ...cards]);
         closeAllPopups()
       })
-      .catch( err => console.log(err))
+      .catch( err => {
+        handleError(err);
+      })
   }
 
   function handleCardLike(card) {
-    const isLiked = card.likes.some(i => i._id === currentUser._id);
-    api.changeLikeCardStatus(card.cardId, isLiked).then(res => res.json()).then((newCard) => {
-      setCards((cards) => cards.map((c) => c._id === card.cardId ? newCard : c));
+    const isLiked = card.likes.some(like => like === currentUser._id);
+    api.changeLikeCardStatus(card.cardId, isLiked, jwt).then(res => res.json()).then((newCard) => {
+      setCards((cards) => cards.map((c) => c._id === card.cardId ? newCard.data : c));
     })
     .catch( err => console.log(err))
   }
 
   function handleCardDelete(cardId) {
-    api.deleteCard(cardId).then(res => res.json()).then( () => {
+    api.deleteCard(cardId, jwt).then(res => res.json()).then( () => {
       setCards( cards => cards.filter( c => c._id !== cardId))
     })
     .catch( err => console.log(err))
@@ -115,12 +140,14 @@ function App() {
     localStorage.removeItem('jwt');
     setLoggedIn(false);
     goToSignInPage();
+    setJwt('');
   }
 
   const authorization = (password, email) => {
     auth.authorization(password, email)
       .then(data => {
         localStorage.setItem('jwt', data.token);
+        setJwt(data.token);
         setLoggedIn(true);
         goToMainPage();
       })
@@ -154,9 +181,11 @@ function App() {
   useEffect( () => {
     if (localStorage.getItem('jwt')) {
       const jwt = localStorage.getItem('jwt');
+      setJwt(jwt);
 
-      auth.getUserInfo(jwt)
+      api.getUserInfo(jwt)
         .then((res) => {
+          setCurrentUser(res.data)
           setLoggedIn(true);
           setEmail(res.data.email);
           goToMainPage();
@@ -164,13 +193,10 @@ function App() {
         .catch( err => console.log(err))
     }
 
-    if (loggedIn) {
+    if (loggedIn && !cards.length) {
       const jwt = localStorage.getItem('jwt');
-      api.getUserInfo(jwt)
-        .then( res => setCurrentUser(res))
-        .catch( err => console.log(err))
       api.getInitialCards(jwt)
-        .then( data => setCards(data))
+        .then( data => setCards(data.data))
         .catch( err => console.log(err))
     }
   }, [loggedIn])

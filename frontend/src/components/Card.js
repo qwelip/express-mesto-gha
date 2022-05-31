@@ -14,7 +14,7 @@ const Card = ({
   }) => {
 
   const {_id} = useContext(CurrentUserContext);
-  const isLiked = likes ? likes.some( i => i._id === _id) : false;
+  const isLiked = likes ? likes.some( like => like === _id) : false;
 
   function handleLikeClick() {
     onCardLike({likes, cardId});
@@ -27,7 +27,7 @@ const Card = ({
   return (
     <div className="element">
       {
-        owner._id === _id &&
+        owner === _id &&
         <button type="button" className="element__trashBtn">
           <img 
             src={trashImg} 

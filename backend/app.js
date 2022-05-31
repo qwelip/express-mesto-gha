@@ -1,5 +1,4 @@
 const { celebrate, Joi, errors } = require('celebrate');
-const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -10,7 +9,7 @@ const { auth } = require('./middlewares/auth');
 const { NotFoundError } = require('./errors/NotFoundError');
 const { URL_REG_STR } = require('./constants/constants');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-// const { checkCors } = require('./middlewares/cors');
+const { checkCors } = require('./middlewares/cors');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -20,14 +19,9 @@ const urlRegExp = new RegExp(URL_REG_STR);
 
 app.use(bodyParser.json());
 
+app.use(checkCors);
+
 app.use(requestLogger);
-
-app.use(cors({
-  methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
-  origin: ['localhost:3001'],
-}));
-
-// app.use(checkCors);
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({

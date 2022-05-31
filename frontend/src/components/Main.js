@@ -56,7 +56,7 @@ const Main = ({
         </section>
 
         <section className="elements">
-          {
+          { cards.length > 0 ? 
             cards.map( card => (
                 <Card 
                   key={card._id} 
@@ -68,6 +68,7 @@ const Main = ({
                 />
               )
             )
+            : <p className='elements__no-cards'>Карточек нет</p> 
           }
         </section>
       </main>

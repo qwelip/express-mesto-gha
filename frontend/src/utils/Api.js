@@ -1,43 +1,42 @@
 class Api{
-  constructor({cardsUrl, updateUserInfoUrl, getUserInfoUrl, token}) {
+  constructor({cardsUrl, updateUserInfoUrl, getUserInfoUrl, }) {
     this._cardsUrl = cardsUrl;
     this._updateUserInfoUrl = updateUserInfoUrl;
     this._getUserInfoUrl = getUserInfoUrl;
-    // this._token = token;
   }
 
   handleResponse(res) {
     if (res.ok) {
       return res.json()
     }
-    return Promise.reject(`Ошибка ${res.status}`)
+    return Promise.reject(res)
   }
 
-  getInitialCards(token) {
+  getInitialCards(jwt) {
     return fetch(this._cardsUrl, {
       headers: {
-        authorization: token,
+        "Authorization" : `Bearer ${jwt}`,
         'Content-Type': 'application/json'
       }
     })
     .then((res) => this.handleResponse(res))
   }
 
-  getUserInfo(token) {
+  getUserInfo(jwt) {
     return fetch(this._getUserInfoUrl, {
     headers: {
-      authorization: token,
+      "Authorization" : `Bearer ${jwt}`,
       'Content-Type': 'application/json'
     }
     })
     .then((res) => this.handleResponse(res))
   }
 
-  setUserInfo = ({name, about}) => {
+  setUserInfo = ({name, about, jwt}) => {
     return fetch(`${this._updateUserInfoUrl}/me`, {
       method: 'PATCH',
       headers: {
-        authorization: this._token,
+        "Authorization" : `Bearer ${jwt}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -47,11 +46,11 @@ class Api{
     })
   }
 
-  addNewCard({name, link}) {
+  addNewCard({name, link, jwt}) {
     return fetch(this._cardsUrl, {
       method: 'POST',
       headers: {
-        authorization: this._token,
+        "Authorization" : `Bearer ${jwt}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -61,32 +60,32 @@ class Api{
     })
   }
 
-  deleteCard = (cardId) => {
+  deleteCard = (cardId, jwt) => {
     return fetch(`${this._cardsUrl}/${cardId}`, {
       method: 'DELETE',
       headers: {
-        authorization: this._token,
+        "Authorization" : `Bearer ${jwt}`,
         'Content-Type': 'application/json'
       }
     })
   }
 
-  changeLikeCardStatus = (cardId, isLiked) => {
-    const meth = isLiked ? 'DELETE' : 'PUT';
+  changeLikeCardStatus = (cardId, isLiked, jwt) => {
+    const method = isLiked ? 'DELETE' : 'PUT';
     return fetch(`${this._cardsUrl}/${cardId}/likes`, {
-      method: meth,
+      method,
       headers: {
-        authorization: this._token,
+        "Authorization" : `Bearer ${jwt}`,
         'Content-Type': 'application/json'
       }
     })
   }
 
-  changeAvatar = (url) => {
+  changeAvatar = (url, jwt) => {
     return fetch(`${this._updateUserInfoUrl}/me/avatar`, {
       method: 'PATCH',
       headers: {
-        authorization: this._token,
+        "Authorization" : `Bearer ${jwt}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -97,14 +96,9 @@ class Api{
 }
 
 const api = new Api ({
-  // cardsUrl: 'https://mesto.nomoreparties.co/v1/cohort36/cards',
   cardsUrl: 'http://localhost:3000/cards',
-  // updateUserInfoUrl: 'https://mesto.nomoreparties.co/v1/cohort36/users',
   updateUserInfoUrl: 'http://localhost:3000/users',
-  // getUserInfoUrl: 'https://nomoreparties.co/v1/cohort36/users/me',
   getUserInfoUrl: 'http://localhost:3000/users/me',
-  // token: 'edd7092a-48ca-4ae4-81a0-05e569754f8c'
-  // token: ''
   }
 )
 

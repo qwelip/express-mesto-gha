@@ -37,20 +37,8 @@ class Auth {
     })
     .then((res) => this.handleResponse(res))
   }
-
-  getUserInfo(jwt) {
-    return fetch(`${this.baseUrl}/users/me`, {
-      method: 'GET',
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization" : `Bearer ${jwt}`
-      }
-    })
-    .then((res) => this.handleResponse(res))
-  }
 }
 
-// const auth = new Auth('https://auth.nomoreparties.co');
 const auth = new Auth('http://localhost:3000');
 
 export default auth
