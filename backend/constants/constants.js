@@ -1,7 +1,8 @@
+const { NODE_ENV, JWT_SECRET } = process.env;
+
 const LENGTH_OF_ID = 24;
 const PASSWORD_HASH = 10;
-const SECRET = 'SECRET';
-const SEVEN_DAYS = 604800000;
+const SECRET = NODE_ENV === 'production' ? JWT_SECRET : 'SECRET';
 const STATUS_CREATED = 201;
 const STATUS_OK = 200;
 // eslint-disable-next-line
@@ -11,7 +12,6 @@ module.exports = {
   LENGTH_OF_ID,
   PASSWORD_HASH,
   SECRET,
-  SEVEN_DAYS,
   STATUS_CREATED,
   STATUS_OK,
   URL_REG_STR,
