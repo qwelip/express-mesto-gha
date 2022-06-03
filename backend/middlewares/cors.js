@@ -1,5 +1,6 @@
 const allowedCors = [
   'http://andmed-practicum.nomoreparties.sbs',
+  'https://andmed-practicum.nomoreparties.sbs',
 ];
 
 // eslint-disable-next-line consistent-return
