@@ -39,6 +39,6 @@ class Auth {
   }
 }
 
-const auth = new Auth('api.andmed-practicum.nomoredomains.xyz');
+const auth = new Auth('https://api.andmed-practicum.nomoredomains.xyz');
 
 export default auth

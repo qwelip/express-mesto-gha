@@ -96,9 +96,9 @@ class Api{
 }
 
 const api = new Api ({
-  cardsUrl: 'api.andmed-practicum.nomoredomains.xyz/cards',
-  updateUserInfoUrl: 'api.andmed-practicum.nomoredomains.xyz/users',
-  getUserInfoUrl: 'api.andmed-practicum.nomoredomains.xyz/users/me',
+  cardsUrl: 'https://api.andmed-practicum.nomoredomains.xyz/cards',
+  updateUserInfoUrl: 'https://api.andmed-practicum.nomoredomains.xyz/users',
+  getUserInfoUrl: 'https://api.andmed-practicum.nomoredomains.xyz/users/me',
   }
 )
 
