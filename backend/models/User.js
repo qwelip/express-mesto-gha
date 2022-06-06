@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const stringValidator = require('validator');
 const { URL_REG_STR } = require('../constants/constants');
 
-const urlRegExp = new RegExp(URL_REG_STR);
+const urlRegExp = new RegExp(URL_REG_STR, 'g');
 
 const userSchema = new mongoose.Schema({
   name: {

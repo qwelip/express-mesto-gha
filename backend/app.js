@@ -15,7 +15,7 @@ const { checkCors } = require('./middlewares/cors');
 const { PORT = 3000 } = process.env;
 const app = express();
 
-const urlRegExp = new RegExp(URL_REG_STR);
+const urlRegExp = new RegExp(URL_REG_STR, 'g');
 
 app.use(bodyParser.json());
 
