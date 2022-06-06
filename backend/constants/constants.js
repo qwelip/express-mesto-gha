@@ -6,7 +6,7 @@ const SECRET = NODE_ENV === 'production' ? JWT_SECRET : 'SECRET';
 const STATUS_CREATED = 201;
 const STATUS_OK = 200;
 // eslint-disable-next-line
-const URL_REG_STR = '^(https?:)\/\/(www.)?[a-zA-Z0-9\./_~:/?#!$&()*+,;=\\]\\[-]+#?$';
+const URL_REG_STR = '^(https?:)\/\/(www.)?[\w\.\_\/~:\?#!$&()*+,;=\]\[-]+\.[\w\.\_\/~:\?#!$&()*+,;=\]\[-]+$';
 
 module.exports = {
   LENGTH_OF_ID,

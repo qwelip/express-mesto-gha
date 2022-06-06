@@ -46,7 +46,6 @@ function createUser(req, res, next) {
       })
         .then((user) => {
           const newUser = user.toObject();
-          // eslint-disable-next-line
           delete newUser.password;
           res.status(STATUS_CREATED).send({ data: newUser });
         })
@@ -61,6 +60,9 @@ function createUser(req, res, next) {
             next(new CommonError('Ошибка сервера'));
           }
         });
+    })
+    .catch(() => {
+      next(new CommonError('Ошибка шифрования пароля'));
     });
 }
 
@@ -139,7 +141,7 @@ async function login(req, res, next) {
     }
 
     const token = jwt.sign({ _id: user._id }, SECRET, { expiresIn: '7d' });
-    const resData = { data: user, token };
+    const resData = { token };
     res.send(resData);
   } catch (err) {
     next(err);

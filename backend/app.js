@@ -15,7 +15,6 @@ const { checkCors } = require('./middlewares/cors');
 const { PORT = 3000 } = process.env;
 const app = express();
 
-// eslint-disable-next-line
 const urlRegExp = new RegExp(URL_REG_STR);
 
 app.use(bodyParser.json());
