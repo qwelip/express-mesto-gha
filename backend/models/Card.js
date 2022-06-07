@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { URL_REG_STR } = require('../constants/constants');
 
-const urlRegExp = new RegExp(URL_REG_STR);
+const urlRegExp = new RegExp(`${URL_REG_STR}`);
 
 const cardSchema = new mongoose.Schema({
   name: {
