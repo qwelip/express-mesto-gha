@@ -2,7 +2,7 @@ const { celebrate, Joi } = require('celebrate');
 const userRouter = require('express').Router();
 const { URL_REG_STR } = require('../constants/constants');
 
-const urlRegExp = new RegExp(URL_REG_STR, 'gi');
+const urlRegExp = new RegExp(URL_REG_STR);
 
 const {
   getAllUsers,

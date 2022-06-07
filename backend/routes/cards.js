@@ -2,7 +2,7 @@ const { celebrate, Joi } = require('celebrate');
 const cardsRouter = require('express').Router();
 const { URL_REG_STR } = require('../constants/constants');
 
-const urlRegExp = new RegExp(URL_REG_STR, 'ig');
+const urlRegExp = new RegExp(URL_REG_STR);
 
 const {
   getAllCards,
